@@ -42,4 +42,4 @@ jobs:
       with:
         gradle-version: '5.0'
         build-root-directory: ghidra-nsis-extension/nsis
-        arguments: '-PGHIDRA_INSTALL_DIR=../../${{ ghidra-directory }}'
+        arguments: '-PGHIDRA_INSTALL_DIR=../../${{ env.ghidra-directory }}'
