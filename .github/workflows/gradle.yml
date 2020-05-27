@@ -3,6 +3,10 @@
 
 name: Java CI with Gradle
 
+env:
+  ghidra-url: https://ghidra-sre.org/ghidra_9.1.2_PUBLIC_20200212.zip
+  ghidra-zip-filename: ghidra_9.1.2_PUBLIC.zip
+
 on:
   push:
     branches: [ master ]
@@ -20,12 +24,12 @@ jobs:
       uses: carlosperate/download-file-action@v1.0.3
       id: download-ghidra
       with:
-        file-url: 'https://ghidra-sre.org/ghidra_9.1.2_PUBLIC_20200212.zip'
+        file-url: ${{ env.ghidra-url }}
         file-name: 'ghidra.zip'
         location: './build'
     - name: Print the file path
       run: echo "The file was downloaded to ${{ steps.download-ghidra.outputs.file-path }}"
-    - name: Decompress
+    - name: Unzip Ghidra
       uses: TonyBogdanov/zip@1.0
       with:
         args: unzip -qq ${{ steps.download-ghidra.outputs.file-path }} -d ./build
