@@ -40,6 +40,6 @@ jobs:
     - name: Build extension
       uses: eskatos/gradle-command-action@v1
       with:
-        gradle-version: 5.0
+        gradle-version: 5
         build-root-directory: ghidra-nsis-extension/nsis
 #        arguments: build -PGHIDRA_INSTALL_DIR=../../${{ ghidra-directory }}
