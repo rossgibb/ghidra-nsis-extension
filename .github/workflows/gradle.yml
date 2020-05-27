@@ -25,6 +25,10 @@ jobs:
         location: './build'
     - name: Print the file path
       run: echo "The file was downloaded to ${{ steps.download-ghidra.outputs.file-path }}"
+    - name: Decompress
+      uses: TonyBogdanov/zip@1.0
+      with:
+        args: unzip -qq ${{ steps.download-ghidra.outputs.file-path }} -d ./build
     #- name: Set up JDK 1.8
     #  uses: actions/setup-java@v1
     #  with:
