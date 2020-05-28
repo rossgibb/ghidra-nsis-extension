@@ -27,14 +27,10 @@ jobs:
       with:
         file-url: ${{ env.ghidra-url }}
         file-name: ${{ env.ghidra-zip-filename }}
-    - name: Print the file path
-      run: echo "The file was downloaded to ${{ steps.download-ghidra.outputs.file-path }}"
     - name: Unzip Ghidra
       uses: TonyBogdanov/zip@1.0
       with:
         args: unzip -qq ${{ steps.download-ghidra.outputs.file-path }} -d .
-    - name: Delete me
-      run: ls -la
     - uses: actions/setup-java@v1
       with:
         java-version: 11.0.2
@@ -44,3 +40,5 @@ jobs:
         gradle-version: '5.0'
         build-root-directory: ${{ github.workspace }}/nsis
         arguments: '-PGHIDRA_INSTALL_DIR=${{ github.workspace }}/${{ env.ghidra-directory }}'
+    - name: Delete me
+      run: ls -la dist
