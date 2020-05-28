@@ -40,5 +40,7 @@ jobs:
         gradle-version: '5.0'
         build-root-directory: ${{ github.workspace }}/nsis
         arguments: '-PGHIDRA_INSTALL_DIR=${{ github.workspace }}/${{ env.ghidra-directory }}'
-    - name: Delete me
-      run: ls -la nsis/dist
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        path: nsis/dist/ghidra*.zip
