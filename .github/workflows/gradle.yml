@@ -27,7 +27,6 @@ jobs:
       with:
         file-url: ${{ env.ghidra-url }}
         file-name: ${{ env.ghidra-zip-filename }}
-        location: '.'
     - name: Print the file path
       run: echo "The file was downloaded to ${{ steps.download-ghidra.outputs.file-path }}"
     - name: Unzip Ghidra
