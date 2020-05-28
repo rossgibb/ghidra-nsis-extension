@@ -43,4 +43,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
+        name: my-artifact
         path: nsis/dist/ghidra*.zip
