@@ -10,37 +10,35 @@ import ghidra.program.model.data.StructureDataType;
 import ghidra.util.exception.DuplicateNameException;
 
 public class NsisBlockHeader implements StructConverter {
-	private int offset;
-	private int nbEntries;
-	private final static Structure STRUCTURE;
+  private int offset;
+  private int nbEntries;
+  private final static Structure STRUCTURE;
 
-	static {
-		STRUCTURE = new StructureDataType("block_header", 0);
-		STRUCTURE.add(DWORD, DWORD.getLength(), "offset",
-				"Offset at which the block header starts");
-		STRUCTURE.add(DWORD, DWORD.getLength(), "num",
-				"Number of entries in the block header");
-	}
+  static {
+    STRUCTURE = new StructureDataType("block_header", 0);
+    STRUCTURE.add(DWORD, DWORD.getLength(), "offset", "Offset at which the block header starts");
+    STRUCTURE.add(DWORD, DWORD.getLength(), "num", "Number of entries in the block header");
+  }
 
-	public NsisBlockHeader(BinaryReader reader) throws IOException {
-		this.offset = reader.readNextInt();
-		this.nbEntries = reader.readNextInt();
-	}
+  public NsisBlockHeader(BinaryReader reader) throws IOException {
+    this.offset = reader.readNextInt();
+    this.nbEntries = reader.readNextInt();
+  }
 
-	@Override
-	public DataType toDataType() throws DuplicateNameException, IOException {
-		return STRUCTURE;
-	}
+  @Override
+  public DataType toDataType() throws DuplicateNameException, IOException {
+    return STRUCTURE;
+  }
 
-	public int getOffset() {
-		return this.offset;
-	}
+  public int getOffset() {
+    return this.offset;
+  }
 
-	public int getNbEntries() {
-		return nbEntries;
-	}
+  public int getNbEntries() {
+    return nbEntries;
+  }
 
-	public static int getHeaderSize() {
-		return STRUCTURE.getLength();
-	}
+  public static int getHeaderSize() {
+    return STRUCTURE.getLength();
+  }
 }

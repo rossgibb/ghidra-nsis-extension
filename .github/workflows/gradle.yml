@@ -21,7 +21,11 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run check style
+      uses: nikitasavinov/checkstyle-action@master
 
     - name: Download Ghidra release
       uses: carlosperate/download-file-action@v1.0.3
@@ -30,7 +34,7 @@ jobs:
         file-url: ${{ env.ghidra-url }}
         file-name: ${{ env.ghidra-zip-filename }}
         location: nsis/dist/
-    
+
     - name: Unzip Ghidra
       uses: TonyBogdanov/zip@1.0
       with:

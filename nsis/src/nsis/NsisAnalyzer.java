@@ -30,51 +30,49 @@ import ghidra.util.task.TaskMonitor;
  */
 public class NsisAnalyzer extends AbstractAnalyzer {
 
-	public NsisAnalyzer() {
+  public NsisAnalyzer() {
 
-		// TODO: Name the analyzer and give it a description.
+    // TODO: Name the analyzer and give it a description.
 
-		super("Nsis", "Analyzer description goes here",
-				AnalyzerType.BYTE_ANALYZER);
-	}
+    super("Nsis", "Analyzer description goes here", AnalyzerType.BYTE_ANALYZER);
+  }
 
-	@Override
-	public boolean getDefaultEnablement(Program program) {
+  @Override
+  public boolean getDefaultEnablement(Program program) {
 
-		// TODO: Return true if analyzer should be enabled by default
+    // TODO: Return true if analyzer should be enabled by default
 
-		return false;
-	}
+    return false;
+  }
 
-	@Override
-	public boolean canAnalyze(Program program) {
+  @Override
+  public boolean canAnalyze(Program program) {
 
-		// TODO: Examine 'program' to determine of this analyzer should analyze
-		// it.
-		// Return true
-		// if it can.
+    // TODO: Examine 'program' to determine of this analyzer should analyze
+    // it.
+    // Return true
+    // if it can.
 
-		return false;
-	}
+    return false;
+  }
 
-	@Override
-	public void registerOptions(Options options, Program program) {
+  @Override
+  public void registerOptions(Options options, Program program) {
 
-		// TODO: If this analyzer has custom options, register them here
+    // TODO: If this analyzer has custom options, register them here
 
-		options.registerOption("Option name goes here", false, null,
-				"Option description goes here");
-	}
+    options.registerOption("Option name goes here", false, null, "Option description goes here");
+  }
 
-	@Override
-	public boolean added(Program program, AddressSetView set,
-			TaskMonitor monitor, MessageLog log) throws CancelledException {
+  @Override
+  public boolean added(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log)
+      throws CancelledException {
 
-		// TODO: Perform analysis when things get added to the 'program'. Return
-		// true if
-		// the
-		// analysis succeeded.
+    // TODO: Perform analysis when things get added to the 'program'. Return
+    // true if
+    // the
+    // analysis succeeded.
 
-		return false;
-	}
+    return false;
+  }
 }

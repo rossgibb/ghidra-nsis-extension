@@ -22,97 +22,89 @@ import nsis.format.NsisScriptHeader;
  */
 public class NsisExecutable {
 
-	public static final String NAME = "NULLSOFT_SCRIPTABLE_INSTALLER_SYSTEM";
+  public static final String NAME = "NULLSOFT_SCRIPTABLE_INSTALLER_SYSTEM";
 
-	private FactoryBundledWithBinaryReader reader;
-	private NsisScriptHeader scriptHeader;
-	private long headerOffset;
+  private FactoryBundledWithBinaryReader reader;
+  private NsisScriptHeader scriptHeader;
+  private long headerOffset;
 
-	/**
-	 * Use createNsisExecutable to create a Nsis Executable object
-	 */
-	public NsisExecutable() {
-	}
+  /**
+   * Use createNsisExecutable to create a Nsis Executable object
+   */
+  public NsisExecutable() {
+  }
 
-	/**
-	 * Creates and initializes a Nsis Executable object
-	 * 
-	 * @param factory      that will be used to create Nsis Executable
-	 * @param byteProvider object that will permit reading bytes from the file.
-	 *                     The lifespan of the byte provider is controlled by
-	 *                     Ghidra.
-	 * @param layout       object used to load PE executables
-	 * @return The Nsis executable object
-	 * @throws IOException
-	 * @throws InvalidFormatException
-	 */
-	public static NsisExecutable createNsisExecutable(GenericFactory factory,
-			ByteProvider bp, SectionLayout layout)
-			throws IOException, InvalidFormatException {
-		NsisExecutable nsisExecutable = (NsisExecutable) factory
-				.create(NsisExecutable.class);
-		nsisExecutable.initNsisExecutable(factory, bp, layout);
-		return nsisExecutable;
-	}
+  /**
+   * Creates and initializes a Nsis Executable object
+   * 
+   * @param factory      that will be used to create Nsis Executable
+   * @param byteProvider object that will permit reading bytes from the file. The
+   *                     lifespan of the byte provider is controlled by Ghidra.
+   * @param layout       object used to load PE executables
+   * @return The Nsis executable object
+   * @throws IOException
+   * @throws InvalidFormatException
+   */
+  public static NsisExecutable createNsisExecutable(GenericFactory factory, ByteProvider bp,
+      SectionLayout layout) throws IOException, InvalidFormatException {
+    NsisExecutable nsisExecutable = (NsisExecutable) factory.create(NsisExecutable.class);
+    nsisExecutable.initNsisExecutable(factory, bp, layout);
+    return nsisExecutable;
+  }
 
-	private void initNsisExecutable(GenericFactory factory, ByteProvider bp,
-			SectionLayout layout) throws IOException, InvalidFormatException {
-		this.reader = new FactoryBundledWithBinaryReader(factory, bp,
-				/* isLittleEndian= */ true);
-		this.headerOffset = findHeaderOffset();
-		initScriptHeader(bp);
-	}
+  private void initNsisExecutable(GenericFactory factory, ByteProvider bp, SectionLayout layout)
+      throws IOException, InvalidFormatException {
+    this.reader = new FactoryBundledWithBinaryReader(factory, bp, /* isLittleEndian= */ true);
+    this.headerOffset = findHeaderOffset();
+    initScriptHeader(bp);
+  }
 
-	private long findHeaderOffset() throws IOException, InvalidFormatException {
-		for (long headerOffset = 0; headerOffset
-				+ NsisConstants.NSIS_SIGINFO.length
-				+ NsisConstants.NSIS_MAGIC.length <= reader
-						.length(); headerOffset++) {
-			byte[] content = reader.readByteArray(headerOffset,
-					NsisConstants.NSIS_SIGINFO.length
-							+ NsisConstants.NSIS_MAGIC.length);
-			if (Arrays.equals(Bytes.concat(NsisConstants.NSIS_SIGINFO,
-					NsisConstants.NSIS_MAGIC), content)) {
-				// Include flags in header
-				return headerOffset - StructConverter.DWORD.getLength();
-			}
-		}
-		throw new InvalidFormatException("Nsis magic not found.");
-	}
+  private long findHeaderOffset() throws IOException, InvalidFormatException {
+    for (long headerOffset = 0; headerOffset + NsisConstants.NSIS_SIGINFO.length
+        + NsisConstants.NSIS_MAGIC.length <= reader.length(); headerOffset++) {
+      byte[] content = reader.readByteArray(headerOffset,
+          NsisConstants.NSIS_SIGINFO.length + NsisConstants.NSIS_MAGIC.length);
+      if (Arrays.equals(Bytes.concat(NsisConstants.NSIS_SIGINFO, NsisConstants.NSIS_MAGIC),
+          content)) {
+        // Include flags in header
+        return headerOffset - StructConverter.DWORD.getLength();
+      }
+    }
+    throw new InvalidFormatException("Nsis magic not found.");
+  }
 
-	private void initScriptHeader(ByteProvider bp)
-			throws IOException, InvalidFormatException {
-		BinaryReader br = new BinaryReader(bp, /* isLittleEndian= */ true);
-		br.setPointerIndex(this.headerOffset);
-		this.scriptHeader = new NsisScriptHeader(br);
-	}
+  private void initScriptHeader(ByteProvider bp) throws IOException, InvalidFormatException {
+    BinaryReader br = new BinaryReader(bp, /* isLittleEndian= */ true);
+    br.setPointerIndex(this.headerOffset);
+    this.scriptHeader = new NsisScriptHeader(br);
+  }
 
-	public long getHeaderOffset() {
-		return this.headerOffset;
-	}
+  public long getHeaderOffset() {
+    return this.headerOffset;
+  }
 
-	public int getHeaderSize() {
-		return this.scriptHeader.headerSize;
-	}
+  public int getHeaderSize() {
+    return this.scriptHeader.headerSize;
+  }
 
-	public int getArchiveSize() {
-		return this.scriptHeader.archiveSize;
-	}
+  public int getArchiveSize() {
+    return this.scriptHeader.archiveSize;
+  }
 
-	public int getCompressedHeaderSize() {
-		return this.scriptHeader.compressedHeaderSize;
-	}
+  public int getCompressedHeaderSize() {
+    return this.scriptHeader.compressedHeaderSize;
+  }
 
-	public int getScriptHeaderFlags() {
-		return this.scriptHeader.flags;
-	}
+  public int getScriptHeaderFlags() {
+    return this.scriptHeader.flags;
+  }
 
-	/**
-	 * Returns the data structure of the Nsis Script Header.
-	 * 
-	 * @return a DataType object that represents the Nsis Script header
-	 */
-	public DataType getHeaderDataType() {
-		return this.scriptHeader.toDataType();
-	}
+  /**
+   * Returns the data structure of the Nsis Script Header.
+   * 
+   * @return a DataType object that represents the Nsis Script header
+   */
+  public DataType getHeaderDataType() {
+    return this.scriptHeader.toDataType();
+  }
 }
