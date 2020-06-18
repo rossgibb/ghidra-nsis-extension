@@ -102,7 +102,7 @@ public class NsisExecutable {
 	}
 
 	public int getCompressedHeaderSize() {
-		return this.scriptHeader.compressedHeaderSize;
+		return this.scriptHeader.rawCompressedHeaderSize;
 	}
 
 	public int getScriptHeaderFlags() {

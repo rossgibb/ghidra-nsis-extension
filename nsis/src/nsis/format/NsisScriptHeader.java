@@ -1,7 +1,11 @@
 package nsis.format;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+
+import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
+import org.tukaani.xz.LZMAInputStream;
 
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.StructConverter;
@@ -16,7 +20,8 @@ public class NsisScriptHeader implements StructConverter {
 	private byte[] magic;
 	public final int headerSize;
 	public final int archiveSize;
-	public final int compressedHeaderSize;
+	public final int rawCompressedHeaderSize;
+	public final int realCompressedHeaderSize;
 	private final static Structure STRUCTURE;
 
 	static {
@@ -49,8 +54,32 @@ public class NsisScriptHeader implements StructConverter {
 
 		this.headerSize = reader.readNextInt();
 		this.archiveSize = reader.readNextInt();
-		this.compressedHeaderSize = reader.readNextInt();
-		checkHeaderCompression(reader);
+		this.rawCompressedHeaderSize = reader.readNextInt();
+		switch (checkHeaderCompression(reader)) {
+		case NsisConstants.COMPRESSION_LZMA:
+			this.realCompressedHeaderSize = this.rawCompressedHeaderSize
+					& 0x7fffffff;
+			
+			try {
+				byte propsByte = reader.readNextByte();
+				int dictSize = reader.readNextInt();
+				byte[] compressedBytes = reader
+						.readNextByteArray(this.realCompressedHeaderSize - 5);
+				ByteArrayInputStream byteInputStream = new ByteArrayInputStream(
+						compressedBytes);
+				LZMAInputStream lzma = new LZMAInputStream(
+						byteInputStream, -1, propsByte, dictSize);
+				byte[] decompressedBytes = lzma.readAllBytes();
+				lzma.close();
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+
+			break;
+		default:
+			this.realCompressedHeaderSize = this.rawCompressedHeaderSize;
+			break;
+		}
 	}
 
 	@Override
@@ -66,30 +95,33 @@ public class NsisScriptHeader implements StructConverter {
 		return STRUCTURE.getLength();
 	}
 
-	public void checkHeaderCompression(BinaryReader reader) {
+	public byte checkHeaderCompression(BinaryReader reader) {
 		// TODO reimplement this function to throw invalidformat error when
 		// necessary and fix compression identification bug
-		if ((this.compressedHeaderSize & 0x80000000) == 0) {
+		if ((this.rawCompressedHeaderSize & 0x80000000) == 0) {
 			System.out.print("Header is not compressed!\n");
-			return;
+			return -1;
 		}
 
 		int firstByte = 0;
 		try {
-			firstByte = reader.readByte(0);
+			firstByte = reader.peekNextByte();
 		} catch (IOException e) {
 			e.printStackTrace();
-			return;
+			return -1;
 		}
 
 		if (firstByte == NsisConstants.COMPRESSION_LZMA) {
 			System.out.print("Header is LZMA compressed\n");
+			return NsisConstants.COMPRESSION_LZMA;
 		}
 
 		if (firstByte == NsisConstants.COMPRESSION_BZIP2) {
 			System.out.print("Header is BZip2 compressed\n");
+			return NsisConstants.COMPRESSION_BZIP2;
 		}
 
 		System.out.print("Header is Zlib compressed\n");
+		return -1;
 	}
 }
