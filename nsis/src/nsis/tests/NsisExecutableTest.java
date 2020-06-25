@@ -2,24 +2,22 @@ package nsis.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import generic.continues.RethrowContinuesFactory;
+import ghidra.app.util.bin.ByteArrayProvider;
+import ghidra.app.util.bin.format.pe.PortableExecutable.SectionLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.junit.jupiter.api.Test;
-
-import generic.continues.RethrowContinuesFactory;
-import ghidra.app.util.bin.ByteArrayProvider;
-import ghidra.app.util.bin.format.pe.PortableExecutable.SectionLayout;
 import nsis.file.NsisExecutable;
 import nsis.format.InvalidFormatException;
+import org.junit.jupiter.api.Test;
 
 public class NsisExecutableTest {
 
   private final String pathWithoutCompression = "src/testData/nsis_without_compression.exe";
   private final String pathWithBzip = "src/testData/nsis_with_bzip.exe";
-  private final String pathWithLZMA = "src/testData/nsis_with_lzma.exe";
+  private final String pathWithLzma = "src/testData/nsis_with_lzma.exe";
   private final String pathWithZlib = "src/testData/nsis_with_zlib.exe";
 
   @Test
@@ -38,8 +36,8 @@ public class NsisExecutableTest {
   }
 
   @Test
-  public void testNsisCreationLZMACompressed() throws IOException, InvalidFormatException {
-    try (InputStream binaryInputStream = new FileInputStream(new File(pathWithLZMA))) {
+  public void testNsisCreationLzmaCompressed() throws IOException, InvalidFormatException {
+    try (InputStream binaryInputStream = new FileInputStream(new File(pathWithLzma))) {
       ByteArrayProvider bp = new ByteArrayProvider(binaryInputStream.readAllBytes());
       NsisExecutable ne = NsisExecutable.createNsisExecutable(RethrowContinuesFactory.INSTANCE, bp,
           SectionLayout.FILE);

@@ -1,10 +1,6 @@
 package nsis.file;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 import com.google.common.primitives.Bytes;
-
 import generic.continues.GenericFactory;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -12,11 +8,12 @@ import ghidra.app.util.bin.StructConverter;
 import ghidra.app.util.bin.format.FactoryBundledWithBinaryReader;
 import ghidra.app.util.bin.format.pe.PortableExecutable.SectionLayout;
 import ghidra.program.model.data.DataType;
+import java.io.IOException;
+import java.util.Arrays;
 import nsis.format.InvalidFormatException;
 import nsis.format.NsisScriptHeader;
 
 /**
- * 
  * This class represents a Nsis Executable.
  *
  */
@@ -29,18 +26,18 @@ public class NsisExecutable {
   private long headerOffset;
 
   /**
-   * Use createNsisExecutable to create a Nsis Executable object
+   * Use createNsisExecutable to create a Nsis Executable object.
    */
   public NsisExecutable() {
   }
 
   /**
-   * Creates and initializes a Nsis Executable object
+   * Creates and initializes a Nsis Executable object.
    * 
-   * @param factory      that will be used to create Nsis Executable
-   * @param byteProvider object that will permit reading bytes from the file. The
-   *                     lifespan of the byte provider is controlled by Ghidra.
-   * @param layout       object used to load PE executables
+   * @param factory that will be used to create Nsis Executable
+   * @param bp      object that will permit reading bytes from the file. The
+   *                lifespan of the byte provider is controlled by Ghidra.
+   * @param layout  object used to load PE executables
    * @return The Nsis executable object
    * @throws IOException
    * @throws InvalidFormatException

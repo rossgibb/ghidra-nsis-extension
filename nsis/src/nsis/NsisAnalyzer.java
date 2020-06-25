@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package nsis;
 
 import ghidra.app.services.AbstractAnalyzer;
@@ -30,6 +31,9 @@ import ghidra.util.task.TaskMonitor;
  */
 public class NsisAnalyzer extends AbstractAnalyzer {
 
+  /**
+   * TODO: Add JavaDoc.
+   */
   public NsisAnalyzer() {
 
     // TODO: Name the analyzer and give it a description.

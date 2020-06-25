@@ -13,29 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nsis;
 
-import java.io.*;
-import java.util.*;
+package nsis;
 
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.bin.ByteProviderInputStream;
-import ghidra.formats.gfilesystem.*;
+import ghidra.formats.gfilesystem.FSRL;
+import ghidra.formats.gfilesystem.FSRLRoot;
+import ghidra.formats.gfilesystem.FSUtilities;
+import ghidra.formats.gfilesystem.FileSystemIndexHelper;
+import ghidra.formats.gfilesystem.FileSystemRefManager;
+import ghidra.formats.gfilesystem.FileSystemService;
+import ghidra.formats.gfilesystem.GFile;
+import ghidra.formats.gfilesystem.GFileSystem;
 import ghidra.formats.gfilesystem.annotations.FileSystemInfo;
 import ghidra.formats.gfilesystem.factory.GFileSystemFactoryFull;
 import ghidra.formats.gfilesystem.factory.GFileSystemProbeFull;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TODO: Provide class-level documentation that describes what this file system
  * does.
  */
+//CHECKSTYLE:OFF
 @FileSystemInfo(type = "fstypegoeshere", // ([a-z0-9]+ only)
     description = "File system description goes here", factory = NsisFileSystem.MyFileSystemFactory.class)
+//CHECKSTYLE:ON
 public class NsisFileSystem implements GFileSystem {
 
-  private final FSRLRoot fsFSRL;
+  private final FSRLRoot fsFsrl;
   private FileSystemIndexHelper<MyMetadata> fsih;
   private FileSystemRefManager refManager = new FileSystemRefManager(this);
 
@@ -44,13 +57,13 @@ public class NsisFileSystem implements GFileSystem {
   /**
    * File system constructor.
    * 
-   * @param fsFSRL   The root {@link FSRL} of the file system.
+   * @param fsFsrl   The root {@link FSRL} of the file system.
    * @param provider The file system provider.
    */
-  public NsisFileSystem(FSRLRoot fsFSRL, ByteProvider provider) {
-    this.fsFSRL = fsFSRL;
+  public NsisFileSystem(FSRLRoot fsFsrl, ByteProvider provider) {
+    this.fsFsrl = fsFsrl;
     this.provider = provider;
-    this.fsih = new FileSystemIndexHelper<>(this, fsFSRL);
+    this.fsih = new FileSystemIndexHelper<>(this, fsFsrl);
   }
 
   /**
@@ -85,12 +98,12 @@ public class NsisFileSystem implements GFileSystem {
 
   @Override
   public String getName() {
-    return fsFSRL.getContainer().getName();
+    return fsFsrl.getContainer().getName();
   }
 
   @Override
   public FSRLRoot getFSRL() {
-    return fsFSRL;
+    return fsFsrl;
   }
 
   @Override
