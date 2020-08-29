@@ -8,80 +8,83 @@ import ghidra.app.util.bin.StructConverter;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.Structure;
 import ghidra.program.model.data.StructureDataType;
-import ghidra.util.exception.DuplicateNameException;
 import nsis.file.NsisConstants;
 
 public class NsisScriptHeader implements StructConverter {
-	private byte[] magic;
-	private int inflatedHeaderSize;
-	private int archiveSize;
-	private int compressedHeaderSize;
-	private int flags;
+  public final int flags;
+  private byte[] siginfo;
+  private byte[] magic;
+  public final int headerSize;
+  public final int archiveSize;
+  public final int compressedHeaderSize;
+  private final static Structure STRUCTURE;
 
-	public NsisScriptHeader(BinaryReader reader) throws IOException {
-		setMagic(reader.readNextByteArray(NsisConstants.NSIS_MAGIC.length));
-		if (!Arrays.equals(NsisConstants.NSIS_MAGIC, getMagic())) {
-			throw new IOException("not a nsis file.");
-		}
+  static {
+    STRUCTURE = new StructureDataType("script_header", 0);
+    STRUCTURE.add(DWORD, DWORD.getLength(), "flags", "First header flags (FH_FLAGS_*)");
+    STRUCTURE.add(STRING, NsisConstants.NSIS_SIGINFO.length, "siginfo", "0xdeadbeef (FH_SIG)");
+    STRUCTURE.add(STRING, NsisConstants.NSIS_MAGIC.length, "nsinst",
+        "NSIS magic (FH_INT1, FH_INT2, FH_INT3)");
+    STRUCTURE.add(DWORD, DWORD.getLength(), "header_size",
+        "points to the header+sections+entries+stringtable in the datablock");
+    STRUCTURE.add(DWORD, DWORD.getLength(), "length_of_following_data",
+        "Length of all the data (including the firstheader and the CRC)");
+    STRUCTURE.add(DWORD, DWORD.getLength(), "compressed_header_size",
+        "If MSB is set following data is compressed");
+  }
 
-		setInflatedHeaderSize(reader.readNextInt());
-		setArchiveSize(reader.readNextInt());
-		setCompressedHeaderSize(reader.readNextInt());
-		setFlags(reader.readNextInt());
-	}
+  public NsisScriptHeader(BinaryReader reader) throws IOException, InvalidFormatException {
+    this.flags = reader.readNextInt();
+    this.siginfo = reader.readNextByteArray(NsisConstants.NSIS_SIGINFO.length);
+    this.magic = reader.readNextByteArray(NsisConstants.NSIS_MAGIC.length);
+    if (!Arrays.equals(NsisConstants.NSIS_MAGIC, this.magic)
+        || !Arrays.equals(NsisConstants.NSIS_SIGINFO, this.siginfo)) {
+      throw new InvalidFormatException("Invalid format. Could not find magic bytes.");
+    }
 
-	@Override
-	public DataType toDataType() throws DuplicateNameException, IOException {
-		Structure structure = new StructureDataType("script_header", 0);
-		structure.add(STRING, NsisConstants.NSIS_MAGIC.length, "magic", null);
-		structure.add(DWORD, 4, "inf_size", null);
-		structure.add(DWORD, 4, "hdr_size", null);
-		structure.add(DWORD, 4, "cmpr_hdr_size", null);
-		structure.add(DWORD, 4, "flags", null);
-		return structure;
-	}
+    this.headerSize = reader.readNextInt();
+    this.archiveSize = reader.readNextInt();
+    this.compressedHeaderSize = reader.readNextInt();
+    checkHeaderCompression(reader);
+  }
 
-	public byte[] getMagic() {
-		return magic;
-	}
+  @Override
+  public DataType toDataType() {
+    return STRUCTURE;
+  }
 
-	public void setMagic(byte[] magic) {
-		this.magic = magic;
-	}
+  public byte[] getMagic() {
+    return magic;
+  }
 
-	public int getInflatedHeaderSize() {
-		return inflatedHeaderSize;
-	}
+  public static int getHeaderSize() {
+    return STRUCTURE.getLength();
+  }
 
-	public void setInflatedHeaderSize(int inflated_header_size) {
-		this.inflatedHeaderSize = inflated_header_size;
-	}
+  public void checkHeaderCompression(BinaryReader reader) {
+    // TODO reimplement this function to throw invalidformat error when
+    // necessary and fix compression identification bug
+    if ((this.compressedHeaderSize & 0x80000000) == 0) {
+      System.out.print("Header is not compressed!\n");
+      return;
+    }
 
-	public int getArchiveSize() {
-		return archiveSize;
-	}
+    int firstByte = 0;
+    try {
+      firstByte = reader.readByte(0);
+    } catch (IOException e) {
+      e.printStackTrace();
+      return;
+    }
 
-	public void setArchiveSize(int archiveSize) {
-		this.archiveSize = archiveSize;
-	}
+    if (firstByte == NsisConstants.COMPRESSION_LZMA) {
+      System.out.print("Header is LZMA compressed\n");
+    }
 
-	public int getCompressedHeaderSize() {
-		return compressedHeaderSize;
-	}
+    if (firstByte == NsisConstants.COMPRESSION_BZIP2) {
+      System.out.print("Header is BZip2 compressed\n");
+    }
 
-	public void setCompressedHeaderSize(int compressedHeaderSize) {
-		this.compressedHeaderSize = compressedHeaderSize;
-	}
-
-	public static int getHeaderSize() {
-		return NsisConstants.NSIS_MAGIC.length + 4 + 4 + 4 + 4;
-	}
-
-	public int getFlags() {
-		return flags;
-	}
-
-	public void setFlags(int flags) {
-		this.flags = flags;
-	}
+    System.out.print("Header is Zlib compressed\n");
+  }
 }
