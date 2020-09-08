@@ -1,7 +1,7 @@
-# This workflow will build a Java project with Gradle
+# This workflow will` build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Java CI with Gradle
+name: Ghidra NSIS Extension Build
 
 env:
   ghidra-url: https://ghidra-sre.org/ghidra_9.1.2_PUBLIC_20200212.zip
@@ -10,9 +10,11 @@ env:
 
 on:
   push:
-    branches: [ master]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
+  release:
+    types: [ created ]
 
 jobs:
   build:
@@ -29,8 +31,8 @@ jobs:
       with:
         file-url: ${{ env.ghidra-url }}
         file-name: ${{ env.ghidra-zip-filename }}
-        location: nsis/dist/
-    
+        #location: nsis/dist/
+
     - name: Unzip Ghidra
       uses: TonyBogdanov/zip@1.0
       with:
@@ -46,10 +48,15 @@ jobs:
         build-root-directory: ${{ github.workspace }}/nsis
         arguments: '-PGHIDRA_INSTALL_DIR=${{ github.workspace }}/${{ env.ghidra-directory }}'
 
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'release' }}
+    needs: build
 
-    - name: Run tests
-      uses: eskatos/gradle-command-action@v1
+    steps:
+    - name: Upload the artifacts
+      uses: skx/github-action-publish-binaries@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        gradle-version: '5.0'
-        build-root-directory: ${{ github.workspace }}/nsis
-        arguments: 'test -PGHIDRA_INSTALL_DIR=${{ github.workspace }}/${{ env.ghidra-directory }}'
+        args: 'nsis/dist/*.zip'
