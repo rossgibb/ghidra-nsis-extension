@@ -42,21 +42,31 @@ jobs:
         build-root-directory: ${{ github.workspace }}/nsis
         arguments: '-PGHIDRA_INSTALL_DIR=${{ github.workspace }}/${{ env.ghidra-directory }}'
 
+    - name: Upload built extension
+        uses: actions/upload-artifact@v2
+        with:
+          name: extension
+          path: nsis/dist/*.zip
+
   release:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'release' }}
     needs: build
 
     steps:
+    - name: Download built extension
+        uses: actions/download-artifact@v2
+        with:
+          name: extension
     - name: Workspace
       run: 'echo ${{ github.workspace }}'
     - name: Current dir
       run: 'echo $(pwd)'
     - name: ls
       run: 'echo $(ls ${{ github.workspace }})'
-    - name: Upload the artifacts
+    - name: Upload extension to release
       uses: skx/github-action-publish-binaries@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        args: "${{ github.workspace }}/nsis/dist/*.zip"
+        args: '*.zip'
