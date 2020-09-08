@@ -43,10 +43,10 @@ jobs:
         arguments: '-PGHIDRA_INSTALL_DIR=${{ github.workspace }}/${{ env.ghidra-directory }}'
 
     - name: Upload built extension
-        uses: actions/upload-artifact@v2
-        with:
-          name: extension
-          path: nsis/dist/*.zip
+      uses: actions/upload-artifact@v2
+      with:
+        name: extension
+        path: nsis/dist/*.zip
 
   release:
     runs-on: ubuntu-latest
@@ -55,9 +55,9 @@ jobs:
 
     steps:
     - name: Download built extension
-        uses: actions/download-artifact@v2
-        with:
-          name: extension
+      uses: actions/download-artifact@v2
+      with:
+        name: extension
     - name: Workspace
       run: 'echo ${{ github.workspace }}'
     - name: Current dir
