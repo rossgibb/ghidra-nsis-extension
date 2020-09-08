@@ -48,6 +48,12 @@ jobs:
     needs: build
 
     steps:
+    - name: Workspace
+      run: 'echo ${{ github.workspace }}'
+    - name: Current dir
+      run: 'echo $(pwd)'
+    - name: ls
+      run: 'echo $(ls)'
     - uses: actions/checkout@v2
     - name: Upload the artifacts
       uses: skx/github-action-publish-binaries@master
